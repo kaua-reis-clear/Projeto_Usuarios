@@ -6,51 +6,62 @@ class UserController {
     this.onSubmit();
   }
 
-  onSubmit(){
-    this.formEl.addEventListener("submit", event => {
-        event.preventDefault();
+  onSubmit() {
+    this.formEl.addEventListener("submit", (event) => {
+      event.preventDefault();
 
-        let values = this.getValues();
-        
-        this.getPhoto((content)=>{
-            values.photo = content;
+      let values = this.getValues();
 
-            this.addLine(values);
-        });
+      this.getPhoto().then(
+        content => {
+          values.photo = content;
 
-        this.addLine(values);
-      });
-  }
-
-  getPhoto(callback){
-    let fileReader = new FileReader();
-
-    let elements = [...this.formEl.elements].filter(item => {
-        if (item.name === 'photo'){
-            return item;
+          this.addLine(values);
+        },
+        e => {
+          console.error(e);
         }
-    })
+      );
 
-    let file = elements[0].files[0];
-
-    fileReader.onload = () =>{
-        callback(fileReader.result) 
-    };
-    
-    fileReader.readAsDataURL(file);
+      this.addLine(values);
+    });
   }
 
-  getValues(){
+  getPhoto() {
+    return new Promise((resolve, reject) => {
+      let fileReader = new FileReader();
+
+      let elements = [...this.formEl.elements].filter((item) => {
+        if (item.name === "photo") {
+          return item;
+        }
+      });
+
+      let file = elements[0].files[0];
+
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+
+      fileReader.onerror = (e) => {
+        reject(e);
+      };
+
+      fileReader.readAsDataURL(file);
+    });
+  }
+
+  getValues() {
     let user = {};
 
-    [...this.formEl.elements].forEach(function(field, index) {
-        if (field.name === "gender") {
-            if (field.checked) {
-              user[field.name] = field.value;
-            }
-          } else {
-            user[field.name] = field.value;
-          }
+    [...this.formEl.elements].forEach(function (field, index) {
+      if (field.name === "gender") {
+        if (field.checked) {
+          user[field.name] = field.value;
+        }
+      } else {
+        user[field.name] = field.value;
+      }
     });
 
     return new User(
