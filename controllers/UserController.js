@@ -47,6 +47,8 @@ class UserController {
 
           user.loadFromJSON(result);
 
+          user.save();
+
           this.getTr(user, tr);
 
           this.updateCount();
@@ -78,7 +80,7 @@ class UserController {
         (content) => {
           values.photo = content;
 
-          this.insert(values);
+          values.save();
 
           this.addLine(values);
 
